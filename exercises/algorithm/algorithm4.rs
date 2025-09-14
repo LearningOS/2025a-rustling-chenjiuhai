@@ -57,12 +57,12 @@ where
 
     // Search for a value in the BST
     fn search(&self, value: T) -> bool {
-        let mut current = self.root.as_ref();
+        let mut current = self.root.as_deref();
         while let Some(node) = current {
             match value.cmp(&node.value) {
                 Ordering::Equal => return true,
-                Ordering::Less => current = node.left.as_ref().map(|b| &**b),
-                Ordering::Greater => current = node.right.as_ref().map(|b| &**b),
+                Ordering::Less => current = node.left.as_deref(),
+                Ordering::Greater => current = node.right.as_deref(),
             }
         }
         false

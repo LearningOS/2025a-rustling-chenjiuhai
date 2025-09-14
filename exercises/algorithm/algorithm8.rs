@@ -76,7 +76,7 @@ impl<T> myStack<T> {
     }
     pub fn pop(&mut self) -> Result<T, &str> {
         //TODO
-		self.q1.dequeue()
+		self.q1.dequeue().map_err(|_| "Stack is empty")
     }
     pub fn is_empty(&self) -> bool {
 		//TODO

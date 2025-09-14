@@ -103,10 +103,17 @@ where
     fn next(&mut self) -> Option<T> {
         //TODO
         if self.count == 0 { return None; }
-        let top = std::mem::replace(&mut self.items[1], self.items[self.count].clone());
-        self.items.pop();
+        // take last element
+        let last = self.items.pop().unwrap();
         self.count -= 1;
+        if self.count == 0 {
+            // there was only one real element; last is the same as top
+            return Some(last);
+        }
+        // replace root with last, return old top
         let mut idx = 1;
+        let top = std::mem::replace(&mut self.items[idx], last);
+        // sift down
         while self.children_present(idx) {
             let child = if self.right_child_idx(idx) <= self.count {
                 self.smallest_child_idx(idx)

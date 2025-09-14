@@ -73,22 +73,20 @@ impl<T> LinkedList<T> {
     }
 	pub fn reverse(&mut self){
 		let mut current = self.start;
-		self.end = self.start;
-		while let Some(mut ptr) = current {
+		let mut last: Option<NonNull<Node<T>>> = None;
+		while let Some(ptr) = current {
 			unsafe {
 				let node = &mut *ptr.as_ptr();
-				let next = node.next;
-				// swap next and prev
+				let next = node.next; // original next before swap
 				let tmp = node.next;
 				node.next = node.prev;
 				node.prev = tmp;
+				last = Some(ptr);
 				current = next;
 			}
 		}
-		// swap head and tail
-		let tmp = self.start;
-		self.start = self.end;
-		self.end = tmp;
+		self.end = self.start;
+		self.start = last;
 	}
 }
 
