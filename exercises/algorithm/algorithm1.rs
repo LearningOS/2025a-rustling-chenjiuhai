@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -70,13 +69,78 @@ impl<T> LinkedList<T> {
         }
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	where
+		T: Ord,
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
-        }
+		unsafe {
+			let mut a = list_a.start;
+			let mut b = list_b.start;
+			let mut head: Option<NonNull<Node<T>>> = None;
+			let mut tail: Option<NonNull<Node<T>>> = None;
+
+			// helper to append a node to result list and detach its next
+			fn append<T>(head: &mut Option<NonNull<Node<T>>>, tail: &mut Option<NonNull<Node<T>>>, mut n: NonNull<Node<T>>) {
+				unsafe {
+					(*n.as_ptr()).next = None;
+					match tail {
+						None => {
+							*head = Some(n);
+							*tail = Some(n);
+						}
+						Some(mut t) => {
+							(*t.as_mut()).next = Some(n);
+							*tail = Some(n);
+						}
+					}
+				}
+			}
+
+			while let (Some(na), Some(nb)) = (a, b) {
+				if (*na.as_ptr()).val <= (*nb.as_ptr()).val {
+					let next = (*na.as_ptr()).next;
+					append(&mut head, &mut tail, na);
+					a = next;
+				} else {
+					let next = (*nb.as_ptr()).next;
+					append(&mut head, &mut tail, nb);
+					b = next;
+				}
+			}
+
+			// Attach the remaining chain, if any
+			let mut rem = if a.is_some() { a } else { b };
+			match (tail, rem) {
+				(None, Some(r)) => {
+					// result is empty; head becomes remainder head; find tail
+					head = Some(r);
+					let mut cur = Some(r);
+					let mut last = r;
+					while let Some(nn) = cur {
+						last = nn;
+						cur = (*nn.as_ptr()).next;
+					}
+					tail = Some(last);
+				}
+				(Some(mut t), Some(r)) => {
+					(*t.as_mut()).next = Some(r);
+					// advance to end to set tail
+					let mut cur = Some(r);
+					let mut last = r;
+					while let Some(nn) = cur {
+						last = nn;
+						cur = (*nn.as_ptr()).next;
+					}
+					tail = Some(last);
+				}
+				(_, None) => {}
+			}
+
+			Self {
+				length: list_a.length + list_b.length,
+				start: head,
+				end: tail,
+			}
+		}
 	}
 }
 
