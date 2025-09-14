@@ -28,8 +28,15 @@ impl Graph for UndirectedGraph {
         &self.adjacency_table
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
-        //TODO
-        Graph::add_edge(self, edge)
+        let (a, b, w) = edge;
+        if !self.contains(a) { self.add_node(a); }
+        if !self.contains(b) { self.add_node(b); }
+        self.adjacency_table_mutable()
+            .get_mut(a).unwrap()
+            .push((b.to_string(), w));
+        self.adjacency_table_mutable()
+            .get_mut(b).unwrap()
+            .push((a.to_string(), w));
     }
 }
 pub trait Graph {
